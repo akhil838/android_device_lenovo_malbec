@@ -22,18 +22,32 @@ Not yet tested: decryption with a PIN/pattern set, backup/restore, OTA flashing.
 
 ## Build
 
+Initialise the TWRP 16.0 source and add this tree through a local manifest
+(`.repo/local_manifests/malbec.xml`):
+
 ```shell
 repo init --depth=1 -u https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git -b twrp-16.0
-repo sync
-git -C bootable/recovery apply "$PWD/device/lenovo/malbec/patches/0001-recovery-wait-for-module-handler.patch"
+mkdir -p .repo/local_manifests
 ```
 
-Clone this repository into `device/lenovo/malbec`, then:
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <remote name="akhil838" fetch="https://github.com/akhil838" />
+  <project name="android_device_lenovo_malbec" path="device/lenovo/malbec"
+           remote="akhil838" revision="android-16.0" />
+</manifest>
+```
+
+Sync, apply the source patch, and build:
 
 ```shell
+repo sync
+git -C bootable/recovery apply "$PWD/device/lenovo/malbec/patches/0001-recovery-wait-for-module-handler.patch"
 source build/envsetup.sh
+export ALLOW_MISSING_DEPENDENCIES=true
 lunch twrp_malbec
-make recoveryimage
+mka recoveryimage
 ```
 
 Output: `out/target/product/malbec/recovery.img`. Host tools are x86-64 Linux only.
