@@ -5,11 +5,8 @@
 
 name: Build TWRP Recovery
 
+# Release builds only: run manually from the Actions tab ("Run workflow").
 on:
-  push:
-    branches: [android-16.0, main]
-  pull_request:
-    branches: [android-16.0, main]
   workflow_dispatch:
 
 jobs:
@@ -113,11 +110,11 @@ jobs:
           if-no-files-found: error
 
       - name: Upload to Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/android-16.0'
         uses: softprops/action-gh-release@v2
         with:
           files: out/target/product/${{ env.DEVICE_NAME }}/${{ env.IMAGE_NAME }}.img
           name: ${{ env.IMAGE_NAME }}
           tag_name: ${{ env.BUILD_DATE }}-${{ github.run_id }}
+          target_commitish: ${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
