@@ -1,15 +1,20 @@
-# Inherit from common AOSP config
-$(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
-$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
+#
+# Copyright (C) 2025 The Android Open Source Project
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 
-# Inherit from TWRP common
-$(call inherit-product, vendor/twrp/config/common.mk)
+DEVICE_PATH := device/lenovo/malbec
 
-# Device identifier
-PRODUCT_DEVICE := malbec
-PRODUCT_NAME := twrp_malbec
-PRODUCT_BRAND := Lenovo
-PRODUCT_MODEL := TB390FU
-PRODUCT_MANUFACTURER := Lenovo
+# Inherit from device.mk configuration
+$(call inherit-product, $(DEVICE_PATH)/device.mk)
 
-PRODUCT_GMS_CLIENTID_BASE := android-lenovo
+## Device identifier
+# Board/product name as reported by the bootloader (fastboot getvar product); model TB390FU.
+PRODUCT_DEVICE  := malbec
+PRODUCT_NAME    := twrp_malbec
+PRODUCT_BRAND   := lenovo
+PRODUCT_MODEL   := TB390FU
+
+# Theme
+TW_STATUS_ICONS_ALIGN   := center

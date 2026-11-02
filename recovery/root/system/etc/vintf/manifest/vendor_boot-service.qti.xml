@@ -1,0 +1,12 @@
+<!-- Recovery servicemanager reads only /system/etc/vintf (getRecoveryHalManifest);
+     generated from vendor/etc/vintf/manifest/boot-service.qti.xml (type device->framework). -->
+<!--
+    Input:
+        hardware/qcom/bootctrl/aidl/boot-service.qti.xml
+-->
+<manifest version="8.0" type="framework">
+    <hal format="aidl">
+        <name>android.hardware.boot</name>
+        <fqname>IBootControl/default</fqname>
+    </hal>
+</manifest>

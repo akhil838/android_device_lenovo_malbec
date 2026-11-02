@@ -1,0 +1,13 @@
+<!-- Recovery servicemanager reads only /system/etc/vintf (getRecoveryHalManifest);
+     generated from vendor/etc/vintf/manifest/android.hardware.secure_element.xml (type device->framework). -->
+<!--
+    Input:
+        vendor/qcom/proprietary/qcril-nr/qcril_qmi/android.hardware.secure_element.xml
+-->
+<manifest version="8.0" type="framework">
+    <hal format="aidl">
+        <name>android.hardware.secure_element</name>
+        <fqname>ISecureElement/SIM1</fqname>
+        <fqname>ISecureElement/SIM2</fqname>
+    </hal>
+</manifest>

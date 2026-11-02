@@ -1,0 +1,15 @@
+diff --git a/kernel_module_loader.cpp b/kernel_module_loader.cpp
+index 5bd7672..c7ec0bf 100644
+--- a/kernel_module_loader.cpp
++++ b/kernel_module_loader.cpp
+@@ -148,6 +148,10 @@ bool KernelModuleLoader::LoadVendorModules() {
+     LOGINFO("Optional device runtime cache restoration failed\n");
+ 
+   android::base::SetProperty(TW_MODULES_MOUNTED_PROP, "true");
++  // Wait for the device init handler (twrp.module.handler_done) before /vendor is
++  // mounted and overlaid; otherwise vendor services keep /vendor busy (polygraphene 321f5cf).
++  LOGINFO("Waiting for twrp.module.handler_done\n");
++  android::base::WaitForProperty("twrp.module.handler_done", "true");
+   LOGINFO(
+       "Finished attempting to load requested kernel modules; "
+       "unavailable modules are optional for this device\n");
