@@ -1,0 +1,120 @@
+#
+# Copyright (C) 2026 akhil838 (https://github.com/akhil838)
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+
+name: Build TWRP Recovery
+
+# Release builds only: run manually from the Actions tab ("Run workflow").
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    permissions:
+      contents: write
+
+    env:
+      DEVICE_NAME: malbec
+      DEVICE_PATH: lenovo/malbec
+      TWRP_VERSION: 3.7.1_16
+
+    steps:
+      - name: Cleanup
+        uses: rokibhasansagar/slimhub_actions@main
+
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          create-symlink: true
+
+      # Optional: the runner kernel may lack a matching linux-modules-extra package.
+      - name: Setup zram
+        continue-on-error: true
+        run: |
+          sudo apt install linux-modules-extra-$(uname -r) zram-tools -y
+          sudo modprobe zram
+          sudo sed -i 's/^#PERCENT=50/PERCENT=90/' /etc/default/zramswap
+          sudo sed -i 's/^#PRIORITY=100/PRIORITY=1000/' /etc/default/zramswap
+          sudo systemctl restart zramswap
+          zramctl
+
+      - name: Setup environment
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt update
+          sudo apt install repo -y
+          git config --global user.name "akhil838"
+          git config --global user.email "64255484+akhil838@users.noreply.github.com"
+
+      - name: Sync TWRP 16.0 source
+        run: |
+          repo init -u https://github.com/TWRP-Test/platform_manifest_twrp_aosp.git \
+            -b twrp-16.0 --depth=1
+          (while true; do echo "Syncing source..."; sleep 60; done) &
+          TIP_PID=$!
+          repo sync -c --no-clone-bundle --no-tags --force-sync -j$(nproc)
+          kill $TIP_PID
+
+      - name: Checkout device tree
+        uses: actions/checkout@v4
+        with:
+          path: device/${{ env.DEVICE_PATH }}
+
+      # Patches in patches/ are made against bootable/recovery.
+      - name: Apply TWRP source patches
+        run: |
+          for patch in "$PWD"/device/${{ env.DEVICE_PATH }}/patches/*.patch; do
+            [ -e "$patch" ] || continue
+            if git -C bootable/recovery apply --check "$patch"; then
+              git -C bootable/recovery apply "$patch"
+              echo "Applied $(basename "$patch")"
+            elif git -C bootable/recovery apply --reverse --check "$patch"; then
+              echo "Already applied $(basename "$patch")"
+            else
+              echo "Failed to apply $(basename "$patch")"
+              exit 1
+            fi
+          done
+
+      - name: Build recovery
+        run: |
+          source build/envsetup.sh
+          export ALLOW_MISSING_DEPENDENCIES=true
+          export CCACHE_DIR=.ccache
+          export CCACHE_EXEC=$(command -v ccache)
+          export CCACHE_MAXSIZE=5G
+          export USE_CCACHE=1
+          lunch twrp_${{ env.DEVICE_NAME }}
+          (while true; do echo "$(date +%T) Building..."; free -h; sleep 30; done) &
+          TIP_PID=$!
+          m recoveryimage
+          kill $TIP_PID
+          BUILD_DATE=$(date +%Y%m%d)
+          OUT=out/target/product/${{ env.DEVICE_NAME }}
+          NAME=TWRP-${{ env.TWRP_VERSION }}-${{ env.DEVICE_NAME }}-UNOFFICIAL-${BUILD_DATE}
+          mv "$OUT/recovery.img" "$OUT/${NAME}.img"
+          echo "BUILD_DATE=${BUILD_DATE}" >> "$GITHUB_ENV"
+          echo "IMAGE_NAME=${NAME}" >> "$GITHUB_ENV"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.IMAGE_NAME }}
+          path: out/target/product/${{ env.DEVICE_NAME }}/${{ env.IMAGE_NAME }}.img
+          if-no-files-found: error
+
+      - name: Upload to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: out/target/product/${{ env.DEVICE_NAME }}/${{ env.IMAGE_NAME }}.img
+          name: ${{ env.IMAGE_NAME }}
+          tag_name: ${{ env.BUILD_DATE }}-${{ github.run_id }}
+          target_commitish: ${{ github.sha }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
