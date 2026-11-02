@@ -1,0 +1,13 @@
+<!-- Recovery servicemanager reads only /system/etc/vintf (getRecoveryHalManifest);
+     generated from vendor/etc/vintf/manifest/vendor.qti.hardware.secureprocessor.xml (type device->framework). -->
+<!--
+    Input:
+        vendor/qcom/proprietary/securemsm/seccamera/mediasecureprocessor/aidl/vendor.qti.hardware.secureprocessor.xml
+-->
+<manifest version="8.0" type="framework">
+    <hal format="aidl">
+        <name>vendor.qti.hardware.secureprocessor.device</name>
+        <fqname>ISecureProcessor/qti-tee</fqname>
+        <fqname>ISecureProcessor/qti-tvm</fqname>
+    </hal>
+</manifest>

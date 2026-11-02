@@ -1,0 +1,12 @@
+<!-- Recovery servicemanager reads only /system/etc/vintf (getRecoveryHalManifest);
+     generated from vendor/etc/vintf/manifest/vendor.qti.hardware.qseecom@1.0-service.xml (type device->framework). -->
+<!--
+    Input:
+        vendor/qcom/proprietary/securemsm-noship/QSEEComAPI_HAL/1.0/service/vendor.qti.hardware.qseecom@1.0-service.xml
+-->
+<manifest version="8.0" type="framework">
+    <hal format="aidl">
+        <name>vendor.qti.hardware.qseecom</name>
+        <fqname>IQSEECom/default</fqname>
+    </hal>
+</manifest>

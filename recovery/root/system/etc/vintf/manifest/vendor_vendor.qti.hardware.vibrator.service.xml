@@ -1,0 +1,13 @@
+<!-- Recovery servicemanager reads only /system/etc/vintf (getRecoveryHalManifest);
+     generated from vendor/etc/vintf/manifest/vendor.qti.hardware.vibrator.service.xml (type device->framework). -->
+<!--
+    Input:
+        vendor/qcom/opensource/vibrator/aidl/vendor.qti.hardware.vibrator.service.xml
+-->
+<manifest version="8.0" type="framework">
+    <hal format="aidl">
+        <name>android.hardware.vibrator</name>
+        <version>2</version>
+        <fqname>IVibrator/default</fqname>
+    </hal>
+</manifest>

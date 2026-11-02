@@ -1,31 +1,40 @@
-# Device configuration for Lenovo IdeaTab Pro Gen 2 (malbec / TB390FU)
-# SoC: Qualcomm Snapdragon 8s Gen 4 (SM8735P / sun)
+#
+# Copyright (C) 2025 The Android Open Source Project
+#
+# SPDX-License-Identifier: Apache-2.0
+#
 
-LOCAL_PATH := device/lenovo/malbec
+# Configure base.mk
+$(call inherit-product, $(SRC_TARGET_DIR)/product/base.mk)
 
-# Dynamic Partitions
+# Configure core_64_bit_only.mk
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit_only.mk)
+
+# Configure virtual_ab compression.mk
+$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/compression_with_xor.mk)
+
+# Configure emulated_storage.mk
+$(call inherit-product, $(SRC_TARGET_DIR)/product/emulated_storage.mk)
+
+# Configure twrp common.mk
+$(call inherit-product, vendor/twrp/config/common.mk)
+
+# Shipping API level
+BOARD_SHIPPING_API_LEVEL    := 35
+PRODUCT_SHIPPING_API_LEVEL  := 35
+PRODUCT_TARGET_VNDK_VERSION := 35
+
+# Dynamic partitions
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
-# Virtual A/B
-ENABLE_VIRTUAL_AB := true
+# Kernel
+PRODUCT_OTA_ENFORCE_VINTF_KERNEL_REQUIREMENTS   := false
+PRODUCT_ENABLE_UFFD_GC                          := true
 
-$(call inherit-product, $(SRC_TARGET_DIR)/product/virtual_ab_ota/launch_with_vendor_ramdisk.mk)
-
-# API level
-PRODUCT_SHIPPING_API_LEVEL := 36
-
-# VNDK
-PRODUCT_TARGET_VNDK_VERSION := 36
-
-# Fastbootd
-PRODUCT_PACKAGES += \
-    android.hardware.fastboot@1.1-impl-mock \
-    fastbootd
-
-# Recovery modules
-PRODUCT_PACKAGES += \
-    bootctrl.sun.recovery
+# OTA certs
+#PRODUCT_EXTRA_RECOVERY_KEYS += \
+#	$(DEVICE_PATH)/security/local_OTA \
+#	$(DEVICE_PATH)/security/special_OTA
 
 # Soong namespaces
-PRODUCT_SOONG_NAMESPACES += \
-    $(LOCAL_PATH)
+PRODUCT_SOONG_NAMESPACES += $(DEVICE_PATH)
